@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Radio, Send, CheckCircle, Loader2 } from 'lucide-react';
+import { RevealText } from './RevealText';
+import { useMagneticEffect } from '../hooks/useMagneticEffect';
 
 const GithubIcon = () => (
   <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white/50 group-hover:text-white transition-colors"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
@@ -68,11 +70,7 @@ export const Contact = () => {
   return (
     <section id="contact" className="min-h-screen py-32 relative z-10 px-6 md:px-24 w-full flex flex-col items-center justify-center">
       
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8 }}
+      <div
         className="hud-border bg-black/60 p-8 md:p-16 max-w-4xl w-full relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_100%)] pointer-events-none" />
@@ -82,7 +80,9 @@ export const Contact = () => {
         </div>
         
         <div className="text-center mb-12 relative z-10">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase neon-text mb-4">Transmit Signal</h2>
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase neon-text mb-4 glitch-hover" data-text="Transmit Signal">
+            <RevealText text="Transmit Signal" />
+          </h2>
           <p className="text-white/60 font-mono text-sm max-w-lg mx-auto uppercase tracking-widest">
             Awaiting input sequence for collaboration, inquiries, or neural link requests.
           </p>
@@ -117,7 +117,20 @@ export const Contact = () => {
             </a>
           </div>
 
-          <form className="space-y-6 flex flex-col" onSubmit={handleSubmit}>
+          <motion.form 
+            className="space-y-6 flex flex-col relative z-10" 
+            onSubmit={handleSubmit}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+              }
+            }}
+          >
             {isSubmitted ? (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -130,7 +143,7 @@ export const Contact = () => {
               </motion.div>
             ) : (
               <>
-                <div>
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
                   <label className="text-[10px] font-mono text-white/40 uppercase mb-2 block">Ident (Name)</label>
                   <input 
                     type="text" 
@@ -138,11 +151,12 @@ export const Contact = () => {
                     value={formState.name}
                     onChange={handleChange}
                     required
-                    className="w-full bg-black border border-white/20 p-3 text-sm font-mono text-white focus:outline-none focus:border-white transition-colors" 
+                    autoFocus
+                    className="w-full bg-black border border-white/20 p-3 text-sm font-mono text-white focus:outline-none focus:border-white transition-colors relative z-20" 
                     placeholder="ENTER NAME..." 
                   />
-                </div>
-                <div>
+                </motion.div>
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
                   <label className="text-[10px] font-mono text-white/40 uppercase mb-2 block">Return Vector (Email)</label>
                   <input 
                     type="email" 
@@ -150,28 +164,30 @@ export const Contact = () => {
                     value={formState.email}
                     onChange={handleChange}
                     required
-                    className="w-full bg-black border border-white/20 p-3 text-sm font-mono text-white focus:outline-none focus:border-white transition-colors" 
+                    className="w-full bg-black border border-white/20 p-3 text-sm font-mono text-white focus:outline-none focus:border-white transition-colors relative z-20" 
                     placeholder="ENTER EMAIL..." 
                   />
-                </div>
-                <div className="flex-1 flex flex-col">
+                </motion.div>
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="flex-1 flex flex-col">
                   <label className="text-[10px] font-mono text-white/40 uppercase mb-2 block">Payload (Message)</label>
                   <textarea 
                     name="message"
                     value={formState.message}
                     onChange={handleChange}
                     required
-                    className="w-full flex-1 bg-black border border-white/20 p-3 text-sm font-mono text-white focus:outline-none focus:border-white transition-colors min-h-[120px] resize-none" 
+                    className="w-full flex-1 bg-black border border-white/20 p-3 text-sm font-mono text-white focus:outline-none focus:border-white transition-colors min-h-[120px] resize-none relative z-20" 
                     placeholder="ENTER MESSAGE..."
                   ></textarea>
-                </div>
+                </motion.div>
                 {error && (
-                  <div className="text-red-400 text-xs font-mono">{error}</div>
+                  <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="text-red-400 text-xs font-mono">{error}</motion.div>
                 )}
-                <button 
+                <motion.button 
+                  variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
                   type="submit" 
                   disabled={isSubmitting}
                   className="w-full hud-border py-4 font-mono text-sm uppercase tracking-widest hover:bg-white hover:text-black transition-colors duration-300 relative group overflow-hidden mt-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                  data-cursor-hover
                 >
                   <span className="relative z-10 font-bold flex items-center justify-center gap-2">
                     {isSubmitting ? (
@@ -187,15 +203,15 @@ export const Contact = () => {
                     )}
                   </span>
                   <div className="absolute inset-0 bg-white scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 ease-out" />
-                </button>
+                </motion.button>
                 <p className="text-[10px] font-mono text-white/30 text-center">
                   Powered by Formspree • No backend required
                 </p>
               </>
             )}
-          </form>
+          </motion.form>
         </div>
-      </motion.div>
+      </div>
 
       <footer className="absolute bottom-8 text-center w-full flex flex-col items-center">
         <div className="w-[1px] h-12 bg-gradient-to-t from-white/50 to-transparent mb-4" />

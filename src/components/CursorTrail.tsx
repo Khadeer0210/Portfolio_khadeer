@@ -125,7 +125,7 @@ export const CursorTrail = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 z-[9998] pointer-events-none"
+      className="fixed inset-0 z-30 pointer-events-none"
       style={{ mixBlendMode: 'screen' }}
     />
   );

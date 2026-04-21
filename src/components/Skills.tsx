@@ -1,8 +1,9 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Sphere, Text, Float, Trail, Line } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Sphere, Text, Float, Line } from '@react-three/drei';
 import * as THREE from 'three';
+import { RevealText } from './RevealText';
 
 // Skill data with proficiency levels
 const SKILL_NODES = [
@@ -89,30 +90,16 @@ function SkillNode({ node, isHovered, onHover }: { node: typeof SKILL_NODES[0]; 
           />
         </mesh>
         
-        {/* Label */}
+        {/* Label - simplified without external font */}
         {node.category !== 'hub' && (
           <Text
             position={[0, size + 0.3, 0]}
-            fontSize={0.15}
+            fontSize={0.12}
             color="white"
             anchorX="center"
             anchorY="bottom"
-            font="/fonts/Inter-Bold.woff"
           >
             {node.name}
-          </Text>
-        )}
-        
-        {/* Level indicator */}
-        {node.category !== 'hub' && (
-          <Text
-            position={[0, -size - 0.2, 0]}
-            fontSize={0.1}
-            color={node.color}
-            anchorX="center"
-            anchorY="top"
-          >
-            {node.level}%
           </Text>
         )}
       </group>
@@ -219,7 +206,9 @@ export const Skills = () => {
     <section id="skills" className="min-h-screen flex flex-col justify-center relative z-10 px-6 md:px-24 w-full py-20">
       
       <div className="flex items-center gap-4 mb-8">
-        <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase neon-text">Neural Network</h2>
+        <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase neon-text glitch-hover" data-text="Neural Network">
+          <RevealText text="Neural Network" />
+        </h2>
         <div className="h-[2px] flex-1 bg-gradient-to-r from-white/50 to-transparent" />
       </div>
 
@@ -249,8 +238,10 @@ export const Skills = () => {
 
       {/* 3D Canvas */}
       <div className="h-[500px] w-full relative hud-border bg-black/50">
-        <Canvas camera={{ position: [0, 0, 12], fov: 60 }}>
-          <Scene hoveredNode={hoveredNode} setHoveredNode={setHoveredNode} />
+        <Canvas camera={{ position: [0, 0, 12], fov: 60 }} dpr={[1, 2]}>
+          <Suspense fallback={null}>
+            <Scene hoveredNode={hoveredNode} setHoveredNode={setHoveredNode} />
+          </Suspense>
         </Canvas>
         
         {/* Info Panel */}
@@ -307,19 +298,30 @@ export const Skills = () => {
       {/* Skill Details Grid */}
       <motion.div 
         className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+          }
+        }}
       >
         {categories.map((cat, idx) => {
           const catSkills = SKILL_NODES.filter(n => n.category === cat.id);
           return (
             <motion.div
               key={cat.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0, 
+                  transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } 
+                }
+              }}
               className="hud-border p-4 bg-black/40 backdrop-blur-sm"
             >
               <div className="flex items-center gap-2 mb-4">

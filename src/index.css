@@ -81,3 +81,60 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255,255,255,0.6);
 }
+
+/* Lenis smooth scroll */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* Glitch hover effect */
+.glitch-hover {
+  position: relative;
+}
+.glitch-hover::before,
+.glitch-hover::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+.glitch-hover:hover::before {
+  animation: glitch-1 0.3s linear infinite;
+  color: #0ff;
+  opacity: 0.8;
+  clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+}
+.glitch-hover:hover::after {
+  animation: glitch-2 0.3s linear infinite;
+  color: #f0f;
+  opacity: 0.8;
+  clip-path: polygon(0 66%, 100% 66%, 100% 100%, 0 100%);
+}
+@keyframes glitch-1 {
+  0% { transform: translate(0); }
+  20% { transform: translate(-3px, 3px); }
+  40% { transform: translate(-3px, -3px); }
+  60% { transform: translate(3px, 3px); }
+  80% { transform: translate(3px, -3px); }
+  100% { transform: translate(0); }
+}
+@keyframes glitch-2 {
+  0% { transform: translate(0); }
+  20% { transform: translate(3px, -3px); }
+  40% { transform: translate(3px, 3px); }
+  60% { transform: translate(-3px, -3px); }
+  80% { transform: translate(-3px, 3px); }
+  100% { transform: translate(0); }
+}
+
+/* Custom cursor (desktop only) */
+@media (pointer: fine) {
+  * { cursor: none !important; }
+}

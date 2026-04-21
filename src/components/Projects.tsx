@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { RevealText } from './RevealText';
+import { useTiltEffect } from '../hooks/useTiltEffect';
 
 const projects = [
   {
@@ -31,6 +33,37 @@ const projects = [
   }
 ];
 
+const ProjectCard = ({ project, onSelect }: { project: typeof projects[0]; onSelect: () => void }) => {
+  const tilt = useTiltEffect(8);
+  
+  return (
+    <motion.div
+      ref={tilt.ref}
+      style={tilt.style}
+      onMouseMove={tilt.handleMouseMove}
+      onMouseLeave={tilt.handleMouseLeave}
+      layoutId={`card-${project.id}`}
+      onClick={onSelect}
+      className="hud-border bg-black/50 cursor-pointer group relative overflow-hidden aspect-[4/3] flex flex-col justify-end p-6 hover:border-white transition-colors"
+      data-cursor-hover
+    >
+      <div className="absolute inset-0 z-0">
+        <img 
+          src={project.image} 
+          alt={project.title} 
+          className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500 group-hover:scale-105" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+      </div>
+      
+      <div className="relative z-10 pointer-events-none">
+        <motion.h3 layoutId={`title-${project.id}`} className="text-2xl font-bold font-mono text-white mb-2">{project.title}</motion.h3>
+        <motion.p layoutId={`role-${project.id}`} className="text-white/60 font-mono text-xs uppercase tracking-widest">{project.role}</motion.p>
+      </div>
+    </motion.div>
+  );
+};
+
 export const Projects = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -38,30 +71,44 @@ export const Projects = () => {
     <section id="projects" className="min-h-screen py-32 relative z-10 px-6 md:px-24 w-full flex flex-col justify-center">
       
       <div className="flex items-center gap-4 mb-16">
-        <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase neon-text">Project Archives</h2>
+        <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase neon-text glitch-hover" data-text="Project Archives">
+          <RevealText text="Project Archives" />
+        </h2>
         <div className="h-[2px] flex-1 bg-gradient-to-r from-white/50 to-transparent" />
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto w-full">
+      <motion.div 
+        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto w-full"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+          }
+        }}
+      >
         {projects.map((project) => (
           <motion.div
             key={project.id}
-            layoutId={`card-${project.id}`}
-            onClick={() => setSelectedId(project.id)}
-            className="hud-border bg-black/50 cursor-pointer group relative overflow-hidden aspect-[4/3] flex flex-col justify-end p-6 hover:border-white transition-colors"
+            variants={{
+              hidden: { opacity: 0, y: 30 },
+              visible: { 
+                opacity: 1, 
+                y: 0, 
+                transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } 
+              }
+            }}
           >
-            <div className="absolute inset-0 z-0">
-              <img src={project.image} alt={project.title} className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-            </div>
-            
-            <div className="relative z-10">
-              <motion.h3 layoutId={`title-${project.id}`} className="text-2xl font-bold font-mono text-white mb-2">{project.title}</motion.h3>
-              <motion.p layoutId={`role-${project.id}`} className="text-white/60 font-mono text-xs uppercase tracking-widest">{project.role}</motion.p>
-            </div>
+            <ProjectCard 
+              project={project} 
+              onSelect={() => setSelectedId(project.id)}
+            />
           </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {selectedId && (
